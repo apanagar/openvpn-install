@@ -2,7 +2,7 @@
 * Added password - (removed `nopass`)
 * Force all traffic through VPN - `redirect-gateway def1`
 * Use Cloud DNS for DNS server - `push "dhcp-option DNS 10.0.0.1"`
-* Changed OpenVPN gateway address - Changed references to `10.8.0.0` to `10.9.0.0`
+* Changed OpenVPN gateway address - Changed references to `10.8.0.0` to `10.9.0.0`. This was done because one fo the VPC made on google just happened to also be `10.8.0.0/24` and was causing conflicts with the VPN server's address space.
 
 ##
 ##
