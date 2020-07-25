@@ -182,6 +182,7 @@ if [[ ! -e /etc/openvpn/server/server.conf ]]; then
 	echo "   4) OpenDNS"
 	echo "   5) Quad9"
 	echo "   6) AdGuard"
+	echo "   7) Get DNS from server (10.0.0.1) - Cloud DNS"
 	read -p "DNS server [1]: " dns
 	until [[ -z "$dns" || "$dns" =~ ^[1-6]$ ]]; do
 		echo "$dns: invalid selection."
@@ -269,7 +270,7 @@ dh dh.pem
 auth SHA512
 tls-crypt tc.key
 topology subnet
-server 10.8.0.0 255.255.255.0" > /etc/openvpn/server/server.conf
+server 10.9.0.0 255.255.255.0" > /etc/openvpn/server/server.conf
 	# IPv6
 	if [[ -z "$ip6" ]]; then
 		echo 'push "redirect-gateway def1 bypass-dhcp"' >> /etc/openvpn/server/server.conf
@@ -313,6 +314,9 @@ server 10.8.0.0 255.255.255.0" > /etc/openvpn/server/server.conf
 			echo 'push "dhcp-option DNS 176.103.130.130"' >> /etc/openvpn/server/server.conf
 			echo 'push "dhcp-option DNS 176.103.130.131"' >> /etc/openvpn/server/server.conf
 		;;
+		7)
+			echo 'push "dhcp-option DNS 10.0.0.2"' >> /etc/openvpn/server/server.conf
+		;;
 	esac
 	echo "keepalive 10 120
 cipher AES-256-CBC
@@ -342,12 +346,12 @@ crl-verify crl.pem" >> /etc/openvpn/server/server.conf
 		# We don't use --add-service=openvpn because that would only work with
 		# the default port and protocol.
 		firewall-cmd --add-port="$port"/"$protocol"
-		firewall-cmd --zone=trusted --add-source=10.8.0.0/24
+		firewall-cmd --zone=trusted --add-source=10.9.0.0/24
 		firewall-cmd --permanent --add-port="$port"/"$protocol"
-		firewall-cmd --permanent --zone=trusted --add-source=10.8.0.0/24
+		firewall-cmd --permanent --zone=trusted --add-source=10.9.0.0/24
 		# Set NAT for the VPN subnet
-		firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s 10.8.0.0/24 ! -d 10.8.0.0/24 -j SNAT --to "$ip"
-		firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s 10.8.0.0/24 ! -d 10.8.0.0/24 -j SNAT --to "$ip"
+		firewall-cmd --direct --add-rule ipv4 nat POSTROUTING 0 -s 10.9.0.0/24 ! -d 10.9.0.0/24 -j SNAT --to "$ip"
+		firewall-cmd --permanent --direct --add-rule ipv4 nat POSTROUTING 0 -s 10.9.0.0/24 ! -d 10.9.0.0/24 -j SNAT --to "$ip"
 		if [[ -n "$ip6" ]]; then
 			firewall-cmd --zone=trusted --add-source=fddd:1194:1194:1194::/64
 			firewall-cmd --permanent --zone=trusted --add-source=fddd:1194:1194:1194::/64
@@ -368,13 +372,13 @@ crl-verify crl.pem" >> /etc/openvpn/server/server.conf
 Before=network.target
 [Service]
 Type=oneshot
-ExecStart=$iptables_path -t nat -A POSTROUTING -s 10.8.0.0/24 ! -d 10.8.0.0/24 -j SNAT --to $ip
+ExecStart=$iptables_path -t nat -A POSTROUTING -s 10.9.0.0/24 ! -d 10.9.0.0/24 -j SNAT --to $ip
 ExecStart=$iptables_path -I INPUT -p $protocol --dport $port -j ACCEPT
-ExecStart=$iptables_path -I FORWARD -s 10.8.0.0/24 -j ACCEPT
+ExecStart=$iptables_path -I FORWARD -s 10.9.0.0/24 -j ACCEPT
 ExecStart=$iptables_path -I FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
-ExecStop=$iptables_path -t nat -D POSTROUTING -s 10.8.0.0/24 ! -d 10.8.0.0/24 -j SNAT --to $ip
+ExecStop=$iptables_path -t nat -D POSTROUTING -s 10.9.0.0/24 ! -d 10.9.0.0/24 -j SNAT --to $ip
 ExecStop=$iptables_path -D INPUT -p $protocol --dport $port -j ACCEPT
-ExecStop=$iptables_path -D FORWARD -s 10.8.0.0/24 -j ACCEPT
+ExecStop=$iptables_path -D FORWARD -s 10.9.0.0/24 -j ACCEPT
 ExecStop=$iptables_path -D FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT" > /etc/systemd/system/openvpn-iptables.service
 		if [[ -n "$ip6" ]]; then
 			echo "ExecStart=$ip6tables_path -t nat -A POSTROUTING -s fddd:1194:1194:1194::/64 ! -d fddd:1194:1194:1194::/64 -j SNAT --to $ip6
@@ -408,6 +412,7 @@ WantedBy=multi-user.target" >> /etc/systemd/system/openvpn-iptables.service
 	# client-common.txt is created so we have a template to add further users later
 	echo "client
 dev tun
+redirect-gateway def1
 proto $protocol
 remote $ip $port
 resolv-retry infinite
