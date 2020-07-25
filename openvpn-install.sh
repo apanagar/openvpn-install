@@ -184,7 +184,7 @@ if [[ ! -e /etc/openvpn/server/server.conf ]]; then
 	echo "   6) AdGuard"
 	echo "   7) Get DNS from server (10.0.0.1) - Cloud DNS"
 	read -p "DNS server [1]: " dns
-	until [[ -z "$dns" || "$dns" =~ ^[1-6]$ ]]; do
+	until [[ -z "$dns" || "$dns" =~ ^[1-7]$ ]]; do
 		echo "$dns: invalid selection."
 		read -p "DNS server [1]: " dns
 	done
