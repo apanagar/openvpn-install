@@ -4,7 +4,8 @@
 * Use Cloud DNS for DNS server - `push "dhcp-option DNS 10.0.0.1"`
 * Changed OpenVPN gateway address - Changed references to `10.8.0.0` to `10.9.0.0`
 
-
+##
+##
 **New: [wireguard-install](https://github.com/Nyr/wireguard-install) is also available.**
 
 ## openvpn-install
