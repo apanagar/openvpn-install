@@ -1,3 +1,10 @@
+##Modifications
+Added password - (removed `nopass`)
+Force all traffic through VPN - `redirect-gateway def1`
+Use Cloud DNS for DNS server - `push "dhcp-option DNS 10.0.0.1"`
+Changed OpenVPN gateway address - Changed references to `10.8.0.0` to `10.9.0.0`
+
+
 **New: [wireguard-install](https://github.com/Nyr/wireguard-install) is also available.**
 
 ## openvpn-install
@@ -8,7 +15,7 @@ This script will let you set up your own VPN server in no more than a minute, ev
 ### Installation
 Run the script and follow the assistant:
 
-`wget https://git.io/vpn -O openvpn-install.sh && bash openvpn-install.sh`
+`wget https://raw.githubusercontent.com/apanagar/openvpn-install/master/openvpn-install.sh -O ~/openvpn-install.sh && sudo bash openvpn-install.sh`
 
 Once it ends, you can run it again to add more users, remove some of them or even completely uninstall OpenVPN.
 
