@@ -4,6 +4,15 @@
 * Use Cloud DNS for DNS server - `push "dhcp-option DNS 10.0.0.1"`
 * Changed OpenVPN gateway address - Changed references to `10.8.0.0` to `10.9.0.0`. This was done because one fo the VPC made on google just happened to also be `10.8.0.0/24` and was causing conflicts with the VPN server's address space.
 
+Copy of modified install instructions from below:
+
+### Installation
+Run the script and follow the assistant:
+
+`wget https://raw.githubusercontent.com/apanagar/openvpn-install/master/openvpn-install.sh -O ~/openvpn-install.sh && sudo bash openvpn-install.sh`
+
+Once it ends, you can run it again to add more users, remove some of them or even completely uninstall OpenVPN.
+
 ##
 ##
 **New: [wireguard-install](https://github.com/Nyr/wireguard-install) is also available.**
